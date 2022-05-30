@@ -10,8 +10,6 @@ export default function App() {
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [textInputValue, setTextInputValue] = useState('');
-  console.log(data);
-
 
   useEffect(() => {
     fetch('https://breakingbadapi.com/api/characters')
@@ -26,6 +24,17 @@ export default function App() {
     )
     :data;
     
+    const [showHide, setShowHide] = useState('flex');
+
+    const handleToggle = () => {
+ 
+      if (showHide === 'flex') {
+        setShowHide('none');
+      } else {
+        setShowHide('flex');
+      }
+    }
+  
     const deleteButton = (index) => {
       const newList = data.filter((item, i) => i+1 != index)
       setData(newList)
@@ -33,7 +42,7 @@ export default function App() {
 
     const ItemRender = ({id}) => (
       <View>
-        <Pressable style={styles.processButton} onPress={() => {deleteButton (id)}}>
+        <Pressable style={{display: showHide}} onPress={handleToggle}>
                 <Text style={{alignSelf: 'center'}}>Planerat</Text>
         </Pressable>
       </View>
