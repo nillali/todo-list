@@ -62,7 +62,7 @@ export default function App() {
       ( 
       <View>
           <FlatList
-            data={data}
+            data={searchCharacter}
             keyExtractor={item => item.char_id}
             renderItem={({ item }) => (
               <View style={styles.names}>
