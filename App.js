@@ -1,5 +1,7 @@
 import React, {useState ,useEffect} from 'react';
-import { FlatList, View, StyleSheet, Text, TextInput, Pressable } from 'react-native';
+import { FlatList, View, StyleSheet, Text, TextInput, Pressable, } from 'react-native';
+import { keyExtractor } from 'react-native/Libraries/Lists/VirtualizeUtils';
+
 
 
 export default function App() {
@@ -7,6 +9,7 @@ export default function App() {
 
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
+  const [textInputValue, setTextInputValue] = useState('');
   console.log(data);
 
 
@@ -18,24 +21,44 @@ export default function App() {
       .finally(() => setLoading(false));
     }, []);
 
+    const searchCharacter = textInputValue ? data.filter((item)=>
+    item.name.toLowerCase().includes(textInputValue.toLocaleLowerCase())
+    )
+    :data;
+    
+    const deleteButton = (index) => {
+      const newList = data.filter((item, i) => i+1 != index)
+      setData(newList)
+    }
+
+    const ItemRender = ({id}) => (
+      <View>
+        <Pressable style={styles.processButton} onPress={() => {deleteButton (id)}}>
+                <Text style={{alignSelf: 'center'}}>Planerat</Text>
+        </Pressable>
+      </View>
+    )
 
   return (
     <View style={styles.container}>
       <View style={styles.container2}>
           <Text style={styles.heading}>TODO-LIST</Text>
-          <TextInput placeholder="Sök efter skådespelare" style ={styles.inputField}>
+          <TextInput placeholder="Sök efter karaktärer" style ={styles.inputField}
+          onChangeText={text => setTextInputValue(text)}
+          value={textInputValue}
+          >
           </TextInput>
-          <Pressable style={styles.searchButton}>
-          <Text>Sök</Text>
+          <Pressable style={styles.searchButton} onPress={() => console.log({searchCharacter})}>
+          <Text style={{alignSelf: 'center'}}>Sök</Text>
           </Pressable>
           <View style={styles.categories}>
-            <Text style={styles.categoriesHeadline}>Skådespelare</Text>
-            <Text style={styles.categoriesHeadline}>Planerat</Text>
-            <Text style={styles.categoriesHeadline}>Träffat</Text>
+            <Pressable><Text style={styles.categoriesHeadline}>Karaktärer</Text></Pressable>
+            <Pressable><Text style={styles.categoriesHeadline}>Planerat</Text></Pressable>
+            <Pressable><Text style={styles.categoriesHeadline}>Träffat</Text></Pressable>
           </View>
 
           <View style={{ flex: 3, padding: 40 }}>
-      {isLoading ? <Text>Laddar...</Text> : 
+      {isLoading ? <Text>Laddar innehåll...</Text> : 
       ( 
       <View>
           <FlatList
@@ -43,8 +66,20 @@ export default function App() {
             keyExtractor={item => item.char_id}
             renderItem={({ item }) => (
               <View style={styles.names}>
-              <Text style={{fontWeight: 'bold'}}>{item.name + ','}</Text>
-              <Text>{item.portrayed}</Text>
+                
+              <Text style={{fontWeight: 'bold', marginLeft: 9, marginTop: 7,}}>{item.name}</Text>
+              <ItemRender id={item.char_id} name={item.name} />
+              {/* <Text>{item.portrayed}</Text> */}
+              {/* <Pressable style={styles.processButton} onPress={() => {deleteButton (item.char_id)}}>
+                <Text style={{alignSelf: 'center'}}>Planerat</Text>
+                </Pressable> */}
+
+              <Pressable style={styles.doneButton} onPress={() => console.log('Button pressed')}>
+                <Text style={{alignSelf: 'center'}}>Träffat</Text>
+                </Pressable>
+
+
+
               </View>
             )}
           />
@@ -79,30 +114,56 @@ const styles = StyleSheet.create({
   categories: {
     marginTop: 20,
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'space-evenly'
 
   },
   categoriesHeadline: {
-    paddingRight: 30,
-    paddingLeft: 30,
+    alignSelf: 'center',
+    marginLeft: 30,
+    marginRight: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#000",
   },
   inputField: {
     padding: 15,
     margin: 10,
     height: 30,
-    width: 190, 
+    width: 180, 
     borderColor: 'gray', 
     borderWidth: 1,
   },
   searchButton: {
     justifyContent: 'center',
-    width: 55,
+    width: 65,
+    height: 30,
+    borderWidth: 1,
+    borderColor: "#20232a",
+    borderRadius: 10,
+  },
+  processButton:{
+    backgroundColor: '#dc9d70',
+    justifyContent: 'center',
+    width: 65,
+    height: 30,
+    borderWidth: 1,
+    borderColor: "#20232a",
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  doneButton:{
+    backgroundColor: '#90c269',
+    justifyContent: 'center',
+    width: 65,
     height: 30,
     borderWidth: 1,
     borderColor: "#20232a",
     borderRadius: 10,
   },
   names: {
-    marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    borderBottomColor: 'black',
+    borderBottomWidth: 1,
+    marginBottom: 20,
   }
 });
