@@ -50,7 +50,8 @@ export default function App() {
         <View style={styles.container}>
       <View style={styles.container2}>
           <Text style={styles.heading}>TODO-LIST</Text>
-          <TextInput placeholder="Sök efter karaktärer" style ={styles.inputField}
+          <Text>Breaking Bad Karaktärer</Text>
+          <TextInput placeholder="Sök efter karaktärer ...." style ={styles.inputField}
           onChangeText={text => setTextInputValue(text)}
           value={textInputValue}>
           </TextInput>
@@ -76,7 +77,7 @@ export default function App() {
             renderItem={({ item }) => (
               <Pressable
               onPress={ () => moveToDone(item)}>
-                <Text style={styles.characterNames}>{item.name}</Text></Pressable>
+                <Text style={styles.progressCharacterNames}>{item.name}</Text></Pressable>
               )}>
               
             </FlatList>
@@ -86,7 +87,7 @@ export default function App() {
             <FlatList
             data={doneData}
             renderItem={({ item }) => (
-              <Pressable><Text style={styles.characterNames}>{item.name}</Text></Pressable>
+              <Pressable><Text style={styles.doneCharacterNames}>{item.name}</Text></Pressable>
             )}></FlatList>
               </View>
           </View>
@@ -119,8 +120,8 @@ const styles = StyleSheet.create({
   inputField: {
     padding: 15,
     margin: 25,
-    height: 30,
-    width: 180, 
+    height: 60,
+    width: 200, 
     borderColor: 'gray', 
     borderWidth: 1,
     color: '#000'
@@ -171,6 +172,20 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     textAlign: 'center',
     marginTop: 40,
+  },
+  progressCharacterNames:{
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    textAlign: 'center',
+    marginTop: 40,
+    color: '#dc9d70',
+  },
+  doneCharacterNames: {
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    textAlign: 'center',
+    marginTop: 40,
+    color: '#90c269',
   },
     names: {
       flexDirection: 'row',
