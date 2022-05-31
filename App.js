@@ -1,15 +1,24 @@
 import React, {useState ,useEffect} from 'react';
-import { FlatList, View, StyleSheet, Text, TextInput, Pressable, } from 'react-native';
+import { 
+  FlatList, 
+  View, 
+  StyleSheet, 
+  Text, 
+  TextInput, 
+  Pressable,
+ } from 'react-native';
 import { keyExtractor } from 'react-native/Libraries/Lists/VirtualizeUtils';
 
 
 
 export default function App() {
-
-
+  
+  
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [textInputValue, setTextInputValue] = useState('');
+  const [progressData, setProgressData] = useState([]);
+  const [showHide, setShowHide] = useState(false);
 
   useEffect(() => {
     fetch('https://breakingbadapi.com/api/characters')
@@ -23,33 +32,26 @@ export default function App() {
     item.name.toLowerCase().includes(textInputValue.toLocaleLowerCase())
     )
     :data;
-    
-    const [showHide, setShowHide] = useState('flex');
+
+    const moveToProgress = (arg) => {
+      setProgressData([...progressData, arg]);
+      
+
+      if (showHide === false) {
+        setShowHide(true);
+      }
+      console.log(progressData);
+
+    }
 
     const handleToggle = () => {
- 
-      if (showHide === 'flex') {
-        setShowHide('none');
-      } else {
-        setShowHide('flex');
-      }
+      if (showHide === false) {
+        setShowHide(true);
+      } 
     }
-  
-    const deleteButton = (index) => {
-      const newList = data.filter((item, i) => i+1 != index)
-      setData(newList)
-    }
-
-    const ItemRender = ({id}) => (
-      <View>
-        <Pressable style={{display: showHide}} onPress={handleToggle}>
-                <Text style={{alignSelf: 'center'}}>Planerat</Text>
-        </Pressable>
-      </View>
-    )
-
-  return (
-    <View style={styles.container}>
+      
+      return (
+        <View style={styles.container}>
       <View style={styles.container2}>
           <Text style={styles.heading}>TODO-LIST</Text>
           <TextInput placeholder="Sök efter karaktärer" style ={styles.inputField}
@@ -57,44 +59,47 @@ export default function App() {
           value={textInputValue}
           >
           </TextInput>
-          <Pressable style={styles.searchButton} onPress={() => console.log({searchCharacter})}>
-          <Text style={{alignSelf: 'center'}}>Sök</Text>
-          </Pressable>
+
           <View style={styles.categories}>
-            <Pressable><Text style={styles.categoriesHeadline}>Karaktärer</Text></Pressable>
-            <Pressable><Text style={styles.categoriesHeadline}>Planerat</Text></Pressable>
-            <Pressable><Text style={styles.categoriesHeadline}>Träffat</Text></Pressable>
+          <View style={styles.categories1}>
+            <Text style={styles.categoriesHeadline}>Karaktärer</Text>
+            <View style={styles.names}>
+                <FlatList
+                data={searchCharacter}
+                keyExtractor={item => item.char_id}
+                renderItem={({ item }) => (
+                <Pressable
+                onPress={ () => moveToProgress(item.name)}>
+                <Text style={{
+                  // display: showHide,
+                  fontWeight: 'bold',
+                  alignSelf: 'center',
+                  textAlign: 'center',
+                  marginTop: 40,
+                  }}>{item.name}</Text>
+                  </Pressable>
+                  )}
+                />
+           </View>
+          </View>
+          <View style={styles.categories2}>
+            <Text style={styles.categoriesHeadline}>Planerat</Text>
+            <FlatList
+            data={progressData}
+            keyExtractor={Math.random}
+            renderItem={({ item }) => (
+              <Pressable><Text style={{fontWeight: 'bold',}}>{item.name}</Text></Pressable>
+            )}
+            >
+              
+            </FlatList>
+          </View>
+          <View style={styles.categories3}>
+            <Text style={styles.categoriesHeadline}>Träffat</Text>
+          </View>
           </View>
 
-          <View style={{ flex: 3, padding: 40 }}>
-      {isLoading ? <Text>Laddar innehåll...</Text> : 
-      ( 
-      <View>
-          <FlatList
-            data={searchCharacter}
-            keyExtractor={item => item.char_id}
-            renderItem={({ item }) => (
-              <View style={styles.names}>
-                
-              <Text style={{fontWeight: 'bold', marginLeft: 9, marginTop: 7,}}>{item.name}</Text>
-              <ItemRender id={item.char_id} name={item.name} />
-              {/* <Text>{item.portrayed}</Text> */}
-              {/* <Pressable style={styles.processButton} onPress={() => {deleteButton (item.char_id)}}>
-                <Text style={{alignSelf: 'center'}}>Planerat</Text>
-                </Pressable> */}
-
-              <Pressable style={styles.doneButton} onPress={() => console.log('Button pressed')}>
-                <Text style={{alignSelf: 'center'}}>Träffat</Text>
-                </Pressable>
-
-
-
-              </View>
-            )}
-          />
-        </View>
-      )}
-    </View>
+        
         </View>
     </View>
   );
@@ -105,13 +110,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#b2c4a4',
     alignItems: 'center',
+    paddingBottom: 70,
   },
   container2:{
     alignItems: 'center',
-    width: 370, 
+    width: 390, 
     backgroundColor: 'white', 
-    marginTop: 60,
-    paddingBottom: 20,
+    marginTop: 55,
+    paddingBottom: 50,
     
   },
   heading: {
@@ -120,59 +126,66 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 15,
   },
-  categories: {
-    marginTop: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly'
-
-  },
-  categoriesHeadline: {
-    alignSelf: 'center',
-    marginLeft: 30,
-    marginRight: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#000",
-  },
   inputField: {
     padding: 15,
-    margin: 10,
+    margin: 25,
     height: 30,
     width: 180, 
     borderColor: 'gray', 
     borderWidth: 1,
+    color: '#000'
   },
-  searchButton: {
-    justifyContent: 'center',
-    width: 65,
-    height: 30,
-    borderWidth: 1,
-    borderColor: "#20232a",
-    borderRadius: 10,
-  },
-  processButton:{
-    backgroundColor: '#dc9d70',
-    justifyContent: 'center',
-    width: 65,
-    height: 30,
-    borderWidth: 1,
-    borderColor: "#20232a",
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  doneButton:{
-    backgroundColor: '#90c269',
-    justifyContent: 'center',
-    width: 65,
-    height: 30,
-    borderWidth: 1,
-    borderColor: "#20232a",
-    borderRadius: 10,
-  },
-  names: {
+  categories: {
+    marginTop: 20,
+    marginBottom: 40,
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    borderBottomColor: 'black',
-    borderBottomWidth: 1,
-    marginBottom: 20,
-  }
-});
+  },
+  categories1:{
+    width: '35%',
+    marginLeft: 10,
+  },
+  categories2:{
+    width: '32%',
+  },
+  categories3:{
+    width: '32%',
+  },
+  categoriesHeadline: {
+    backgroundColor: '#f2f2f2',
+    marginRight: 0,
+    padding: 7,
+    borderWidth: 1,
+    borderColor: "#20232a",
+    maxWidth: 100,
+    alignSelf: 'center',
+  },
+    names: {
+      flexDirection: 'row',
+      justifyContent: 'space-evenly',
+      marginBottom: 20,
+    }
+  });
+  
+  {/* <ItemRender id={item.char_id} name={item.name} />
+  <Pressable style={styles.doneButton} onPress={() => console.log('Button pressed')}>
+  <Text style={{alignSelf: 'center'}}>Träffat</Text>
+</Pressable> */}
+
+{/*const ItemRender = ({id}) => (
+//   <View>
+//     <Pressable style={{
+//       display: showHide, 
+//       backgroundColor: '#dc9d70',
+//       justifyContent: 'center',
+//       width: 65,
+//       height: 30,
+//       borderWidth: 1,
+//       borderColor: "#20232a",
+//       borderRadius: 10,
+//       marginBottom: 10,
+//       }} onPress={handleToggle}>
+//             <Text style={{alignSelf: 'center'}}>Planerat</Text>
+//     </Pressable>
+//   </View>
+
+*/ }
