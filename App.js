@@ -7,18 +7,14 @@ import {
   TextInput, 
   Pressable,
  } from 'react-native';
-import { keyExtractor } from 'react-native/Libraries/Lists/VirtualizeUtils';
-
-
 
 export default function App() {
-  
   
   const [isLoading, setLoading] = useState(true);
   const [data, setData] = useState([]);
   const [textInputValue, setTextInputValue] = useState('');
   const [progressData, setProgressData] = useState([]);
-  const [showHide, setShowHide] = useState(false);
+  const [doneData, setDonedata] = useState([]);
 
   useEffect(() => {
     fetch('https://breakingbadapi.com/api/characters')
@@ -35,20 +31,20 @@ export default function App() {
 
     const moveToProgress = (arg) => {
       setProgressData([...progressData, arg]);
-      
-
-      if (showHide === false) {
-        setShowHide(true);
-      }
-      console.log(progressData);
-
+      const tempData = [...data]
+      const removeValue = arg
+      const filterItems = tempData.filter(item=> item !== removeValue)
+      setData(filterItems)
     }
 
-    const handleToggle = () => {
-      if (showHide === false) {
-        setShowHide(true);
-      } 
+    const moveToDone = (arg) => {
+      setDonedata([...doneData, arg]);
+      const tempData = [...progressData]
+      const removeValue = arg
+      const filterItems = tempData.filter(item=> item !== removeValue)
+      setProgressData(filterItems)
     }
+
       
       return (
         <View style={styles.container}>
@@ -56,8 +52,7 @@ export default function App() {
           <Text style={styles.heading}>TODO-LIST</Text>
           <TextInput placeholder="Sök efter karaktärer" style ={styles.inputField}
           onChangeText={text => setTextInputValue(text)}
-          value={textInputValue}
-          >
+          value={textInputValue}>
           </TextInput>
 
           <View style={styles.categories}>
@@ -66,40 +61,35 @@ export default function App() {
             <View style={styles.names}>
                 <FlatList
                 data={searchCharacter}
-                keyExtractor={item => item.char_id}
                 renderItem={({ item }) => (
                 <Pressable
-                onPress={ () => moveToProgress(item.name)}>
-                <Text style={{
-                  // display: showHide,
-                  fontWeight: 'bold',
-                  alignSelf: 'center',
-                  textAlign: 'center',
-                  marginTop: 40,
-                  }}>{item.name}</Text>
+                onPress={ () => moveToProgress(item)}>
+                <Text style={styles.characterNames}>{item.name}</Text>
                   </Pressable>
-                  )}
-                />
+                  )}/>
            </View>
           </View>
           <View style={styles.categories2}>
-            <Text style={styles.categoriesHeadline}>Planerat</Text>
+            <Text style={styles.plannedHeadline}>Planerat</Text>
             <FlatList
             data={progressData}
-            keyExtractor={Math.random}
             renderItem={({ item }) => (
-              <Pressable><Text style={{fontWeight: 'bold',}}>{item.name}</Text></Pressable>
-            )}
-            >
+              <Pressable
+              onPress={ () => moveToDone(item)}>
+                <Text style={styles.characterNames}>{item.name}</Text></Pressable>
+              )}>
               
             </FlatList>
           </View>
           <View style={styles.categories3}>
-            <Text style={styles.categoriesHeadline}>Träffat</Text>
+            <Text style={styles.doneHeadline}>Träffat</Text>
+            <FlatList
+            data={doneData}
+            renderItem={({ item }) => (
+              <Pressable><Text style={styles.characterNames}>{item.name}</Text></Pressable>
+            )}></FlatList>
+              </View>
           </View>
-          </View>
-
-        
         </View>
     </View>
   );
@@ -141,14 +131,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   categories1:{
-    width: '35%',
-    marginLeft: 10,
+    width: '33%',
   },
   categories2:{
-    width: '32%',
+    width: '33%',
   },
   categories3:{
-    width: '32%',
+    width: '33%',
   },
   categoriesHeadline: {
     backgroundColor: '#f2f2f2',
@@ -159,33 +148,33 @@ const styles = StyleSheet.create({
     maxWidth: 100,
     alignSelf: 'center',
   },
+  plannedHeadline: {
+    backgroundColor: '#dc9d70',
+    marginRight: 0,
+    padding: 7,
+    borderWidth: 1,
+    borderColor: "#20232a",
+    maxWidth: 100,
+    alignSelf: 'center',
+  },
+  doneHeadline: {
+    backgroundColor: '#90c269',
+    marginRight: 0,
+    padding: 7,
+    borderWidth: 1,
+    borderColor: "#20232a",
+    maxWidth: 100,
+    alignSelf: 'center',
+  },
+  characterNames: {
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    textAlign: 'center',
+    marginTop: 40,
+  },
     names: {
       flexDirection: 'row',
       justifyContent: 'space-evenly',
       marginBottom: 20,
     }
   });
-  
-  {/* <ItemRender id={item.char_id} name={item.name} />
-  <Pressable style={styles.doneButton} onPress={() => console.log('Button pressed')}>
-  <Text style={{alignSelf: 'center'}}>Träffat</Text>
-</Pressable> */}
-
-{/*const ItemRender = ({id}) => (
-//   <View>
-//     <Pressable style={{
-//       display: showHide, 
-//       backgroundColor: '#dc9d70',
-//       justifyContent: 'center',
-//       width: 65,
-//       height: 30,
-//       borderWidth: 1,
-//       borderColor: "#20232a",
-//       borderRadius: 10,
-//       marginBottom: 10,
-//       }} onPress={handleToggle}>
-//             <Text style={{alignSelf: 'center'}}>Planerat</Text>
-//     </Pressable>
-//   </View>
-
-*/ }
